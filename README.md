@@ -175,32 +175,6 @@ Convert natural language to KQL.
 - **Execution Ready:** >80% queries execute successfully
 - **Response Time:** <5 seconds per query
 
----
 
-## 🚧 Future Enhancements
 
-- [ ] Real Kusto cluster integration
-- [ ] Multi-cluster support
-- [ ] Advanced error correction
-- [ ] Query execution and result display
-- [ ] Conversation history
-- [ ] User feedback loop
-
----
-
-## 📚 References
-
-- **Research Paper:** "NL2KQL: From Natural Language to Kusto Query" (Microsoft Research)
-- **Repositories:** kusto-mcp, mcp_kusto
-- **Framework:** Based on proven three-component architecture
-
----
-
-## 📝 License
-
-MIT
-
----
-
-**Built for Microsoft CDO Security Operations Teams**
 
