@@ -1,0 +1,741 @@
+NL2KQL 
+
+1. Background & Context 
+
+Microsoft CDO and Security Operations teams (e.g., Containment, SecIR, Detection Engineering, Threat Intelligence, and related groups) rely heavily on Kusto (KQL) and multiple Kusto clusters for daily operations: 
+
+Investigating security incidents 
+
+Hunting for threats 
+
+Validating and tuning detections 
+
+Performing cross-tenant and cross-cluster correlation 
+
+However: 
+
+KQL has a steep learning curve, especially for new joiners. 
+
+Each cluster has different schemas and data maturity. 
+
+Knowledge about “how to investigate X” is spread across individuals in ad-hoc queries, bookmarks, and tribal knowledge. 
+
+There is no unified AI/insights layer that learns from CDO-wide telemetry and investigations to surface cross-cluster patterns and actionable insights. 
+
+To address this, we propose an AI-assisted, IDE-like platform on top of Kusto that enables natural language investigations, automatic KQL generation, cross-cluster learning, and actionable insights. 
+
+ 
+
+2. Problem Statement 
+
+CDO Security Operations teams conduct high-volume investigations across numerous Kusto clusters, each with its own schemas, log maturity, and incident types. While KQL is the backbone of detection and response, it creates several challenges: 
+
+Steep learning curve for new joiners 
+
+New engineers must quickly learn KQL syntax, diverse table schemas, and which clusters to use. 
+
+Onboarding is slow and inconsistent. 
+
+Fragmented knowledge sharing 
+
+Effective queries and investigation sequences live in personal notebooks, scripts, and memory. 
+
+There is no systematic way to discover or reuse proven investigation patterns. 
+
+Manual query refinement and debugging 
+
+Query failures due to schema mismatches, syntax errors, or wrong clusters require manual trial-and-error. 
+
+This increases time-to-triage during high-pressure incidents. 
+
+No unified cross-cluster intelligence layer 
+
+No system “learns” from all CDO-accessible clusters to:  
+
+Detect repeated patterns across incidents 
+
+Surface emerging attack behaviors 
+
+Recommend next steps or actions based on past cases 
+
+This leads to inconsistent investigation depth, slower response times, and low reuse of institutional knowledge. 
+
+ 
+
+3. Product Vision 
+
+Build an AI-powered conversational Kusto IDE that: 
+
+Understands natural language intent 
+
+Users express investigation tasks in plain English. 
+
+The system translates this to valid, optimized KQL. 
+
+Selects the right cluster and schema-aware queries 
+
+Auto-detects or prompts for the cluster. 
+
+Uses schema metadata to generate valid queries. 
+
+Executes queries and interprets results 
+
+Runs KQL on the appropriate Kusto cluster. 
+
+Summarizes and explains results in simple language. 
+
+Suggests next-step queries. 
+
+Debugs and repairs broken KQL 
+
+Reads Kusto error messages. 
+
+Explains what went wrong. 
+
+Suggests or auto-applies fixes. 
+
+Includes an AI Insight Engine (Cross-Cluster Intelligence Layer) 
+
+Learns from all clusters CDO has access to, plus past incident queries & outcomes. 
+
+Identifies recurring patterns, anomalies, and suspicious behaviors across clusters. 
+
+Surfaces actionable insights, e.g.:  
+
+“This device behavior matches past ransomware incidents.” 
+
+“This query matches a known lateral movement pattern.” 
+
+Provides a vibecoding-style experience 
+
+A conversational IDE where users and the AI co-create, refine, and reuse KQL. 
+
+Acts as both a productivity tool and a learning experience. 
+
+ 
+
+4. Objectives & Success Metrics 
+
+4.1 Objectives 
+
+Reduce onboarding time for new CDO engineers to be productive with Kusto. 
+
+Standardize and improve investigation quality across clusters and teams. 
+
+Increase reuse of effective queries and investigation patterns. 
+
+Enable cross-cluster insights that were previously hard or impossible to manually derive. 
+
+4.2 Success Metrics (v1/v2 Targets) 
+
+⏱ Onboarding Efficiency 
+
+Reduction in time for a new joiner to independently complete a standard investigation scenario (target: 30–50% improvement). 
+
+🔍 Query Success Rate 
+
+Decrease in KQL error rate (invalid columns, tables, syntax, cluster mismatches) for users of the platform vs. non-users (target: 40% reduction). 
+
+📈 Reuse & Knowledge Sharing 
+
+Number of investigations using AI-suggested queries or patterns. 
+
+% of queries executed that originate from AI-recommended patterns. 
+
+🚨 Incident Handling Speed 
+
+Time from incident creation to “first meaningful query” or “first actionable insight” (target: 20–30% reduction). 
+
+🤖 User Satisfaction 
+
+CSAT / NPS from CDO users on usefulness of the Kusto Copilot in their daily workflows. 
+
+ 
+
+5. Scope 
+
+5.1 In Scope (v1) 
+
+Natural language → KQL translation 
+
+Cluster-aware query generation 
+
+Schema-aware query construction using metadata 
+
+Query execution against Kusto clusters 
+
+Basic result interpretation and summarization in natural language 
+
+Error handling, explanation, and auto-suggested fixes for KQL errors 
+
+Conversational refinement (“add filter”, “change cluster”, “group by user”) 
+
+Basic AI Insight Engine features:  
+
+Pattern detection based on past queries and incidents 
+
+Simple recommendations (e.g., “You may also want to check X table”) 
+
+Basic knowledge layer:  
+
+Saving and tagging of queries 
+
+Recommending popular/proven queries 
+
+5.2 Out of Scope (v1, possible for v2+) 
+
+Full auto-remediation or direct action on production systems 
+
+Automated policy or rule deployment in detection platforms 
+
+Cross-tenant data movement (beyond what’s already allowed by existing infra) 
+
+UI for complex investigative graph visualizations (v1 can link out to existing tools where needed) 
+
+ 
+
+6. User Personas & Stories 
+
+6.1 Containment Engineer (CDO Containment) 
+
+Story: 
+During an endpoint compromise, I need quick visibility into device activity across several clusters. Remembering schema and clusters under pressure is painful. 
+
+Example flow: 
+
+I type: 
+
+“Investigate suspicious PowerShell execution from device X in the last 4 hours.” 
+
+The system: 
+
+Identifies relevant cluster(s) based on device and historical data usage. 
+
+Generates KQL across process, device, and possibly identity tables. 
+
+Executes and returns results with a plain-language summary. 
+
+Suggests:  
+
+“Check parent process relationships” 
+
+“Compare with known ransomware patterns seen last week.” 
+
+I quickly identify whether the behavior is malicious and take action. 
+
+ 
+
+6.2 SecIR Investigator 
+
+Story: 
+I handle enterprise-wide identity compromises and need a holistic user activity view across clusters. 
+
+Example flow: 
+
+I type: 
+
+“Show anomalous sign-in sequences and lateral movement behavior for user U across all relevant clusters in the last 7 days.” 
+
+The system: 
+
+Identifies clusters with sign-in and device logs. 
+
+Constructs KQL queries per cluster. 
+
+Correlates key fields (user, device, IP). 
+
+Provides:  
+
+A timeline view summary 
+
+A natural-language narrative of suspicious jumps or behaviors. 
+
+ 
+
+6.3 Threat Intelligence Analyst 
+
+Story: 
+I want to know if new or emerging behaviors match known malware or campaigns. 
+
+Example flow: 
+
+I ask: 
+
+“Show me devices showing behavior similar to malware family Y in the last 30 days.” 
+
+The AI Insight Engine: 
+
+Uses patterns from previously tagged incidents involving Y. 
+
+Finds similar sequences in recent data. 
+
+Returns a list of candidate devices and clusters, plus detection queries to validate. 
+
+ 
+
+6.4 Detection Engineer 
+
+Story: 
+I author and tune detections and need KQL that is robust across clusters. 
+
+Example flow: 
+
+I type: 
+
+“Generate a detection for suspicious child processes spawning cmd.exe, usable across major device clusters.” 
+
+The system: 
+
+Generates schema-aware KQL templates. 
+
+Highlights differences per cluster (e.g., table/column names). 
+
+Suggests test queries and shows historical hit rate if available. 
+
+ 
+
+6.5 New Joiner (High-Value Persona) 
+
+Story: 
+I am new to CDO and barely know KQL or cluster layout. 
+
+Example flow: 
+
+I type: 
+
+“List all events from this device in the last 1 day.” 
+
+The system: 
+
+Picks the right cluster by device ID or context. 
+
+Generates simple KQL and labels its components (tables, filters, time range). 
+
+Explains how to modify the query (e.g., change time, add columns). 
+
+Suggests follow-ups:  
+
+“Filter to security events” 
+
+“Show only process creations.” 
+
+I learn KQL as I work, reducing onboarding time. 
+
+ 
+
+6.6 CDO Manager / Incident Lead 
+
+Story: 
+I want visibility into recurring patterns and investigation efficiency. 
+
+Example flow: 
+
+I ask: 
+
+“Show weekly incident trends, recurring attack patterns, and most reused investigation queries across CDO clusters.” 
+
+The system: 
+
+Aggregates data from the knowledge layer and Insight Engine. 
+
+Displays:  
+
+Top recurring TTP-like patterns 
+
+Where detection coverage is weak 
+
+How often AI-suggested queries led to actions. 
+
+ 
+
+7. Functional Requirements 
+
+7.1 Natural Language to KQL Engine 
+
+Accepts user queries in natural language. 
+
+Parses intent (entity, action, timeframe, filters). 
+
+Uses schema metadata to:  
+
+Identify relevant tables and columns 
+
+Validate column names and types 
+
+Generates KQL that:  
+
+Is syntactically valid 
+
+Aligns with the selected cluster’s schema 
+
+Supports iterative refinement via conversational prompts (e.g., “add filter”, “sort by time descending”). 
+
+7.2 Cluster Selection & Context 
+
+Suggest a default cluster based on:  
+
+User profile & team 
+
+Historical usage 
+
+Entity (device/user) metadata if available 
+
+Allow explicit user override:  
+
+“Run this on cluster X” 
+
+Provide clear visibility on:  
+
+Which cluster the query will run on 
+
+Ability to switch cluster and automatically adjust query if schema differences are known. 
+
+7.3 Query Execution & Result Handling 
+
+Connect securely to Kusto clusters. 
+
+Execute KQL with appropriate user permissions. 
+
+Render results in:  
+
+Tabular view 
+
+High-level natural language summary 
+
+Support paging and basic visualization (e.g., trends, counts). 
+
+7.4 Result Interpretation & Next-Step Suggestions 
+
+Summarize key findings, e.g.:  
+
+“Most events are from process X on device Y.” 
+
+Suggest next possible queries:  
+
+“Drill down by user.” 
+
+“Expand to last 7 days.” 
+
+“Check connections from these IPs.” 
+
+7.5 Error Handling & Debugging 
+
+Detect Kusto error messages (syntax errors, missing columns, etc.). 
+
+Parse and explain errors in simple language. 
+
+Suggest or auto-apply fixes:  
+
+Correct table/column names using schema. 
+
+Suggest alternate tables if a column is not found. 
+
+Allow user to compare:  
+
+Original query 
+
+Fixed query. 
+
+7.6 AI Insight Engine (Cross-Cluster Intelligence) 
+
+Ingests:  
+
+Anonymized/query-abstracted patterns 
+
+Historical incident queries and their outcomes (where allowed) 
+
+Aggregate signal from multiple clusters 
+
+Identifies:  
+
+Recurring patterns (e.g., common process chains in incidents) 
+
+Behavioral similarities across devices/users 
+
+Returns:  
+
+Actionable insights 
+
+“Similar to previous incident” hints 
+
+Candidate queries/playbooks. 
+
+7.7 Knowledge Layer & Query Reuse 
+
+Save queries with:  
+
+Metadata: tags, owner, incident ID, description 
+
+Rank queries based on:  
+
+Usage 
+
+Feedback (e.g., “was this helpful?”) 
+
+Surface:  
+
+Recommended queries given a current NL request 
+
+“Popular queries for this table/cluster.” 
+
+7.8 Admin, Governance & Auditability 
+
+Enforce existing auth/permissions—no privilege escalation. 
+
+Log:  
+
+Natural language prompts (with appropriate privacy controls) 
+
+Generated KQL 
+
+Execution metadata (cluster, time, rows, status). 
+
+Provide audit trail for compliance and security review. 
+
+ 
+
+8. Non-Functional Requirements 
+
+Performance: 
+
+NL→KQL generation: target < 3–5 seconds for typical prompts. 
+
+Query execution: respect Kusto SLAs and timeouts; handle long-running queries gracefully. 
+
+Reliability & Availability: 
+
+Highly available for core CDO working hours. 
+
+Graceful degradation if AI or Kusto endpoints are temporarily unavailable. 
+
+Security & Privacy: 
+
+Respect data classification and access boundaries. 
+
+No cross-tenant or cross-cluster data movement beyond existing policies. 
+
+Log access and usage events for auditing. 
+
+Usability: 
+
+Simple, chat-like interface. 
+
+Clear indication of cluster and query context. 
+
+Inline explanations and tooltips to help new joiners. 
+
+Extensibility: 
+
+Ability to add new clusters. 
+
+Ability to plug in other data sources or knowledge bases in future. 
+
+Observability: 
+
+Metrics on usage, latency, errors, and AI-generated query success rates. 
+
+ 
+
+9. UX & Interaction Model 
+
+Primary Interface: Conversational/chat-style UI with: 
+
+Left: conversation history (prompts & system responses) 
+
+Right/Bottom: KQL editor + results pane 
+
+Key UX Features: 
+
+Show generated KQL with syntax highlighting. 
+
+“Explain this query” option. 
+
+Button to “Copy query to native Kusto UI”. 
+
+Clear cluster indicator with easy switch. 
+
+Inline chips: “Add filter”, “Change time range”, “Group by…”. 
+
+Onboarding UX: 
+
+First-run guided tour for new joiners. 
+
+Example prompts for typical investigation tasks (devices, users, IPs). 
+
+ 
+
+10. System Architecture Overview (Logical) 
+
+Key Components: 
+
+Frontend (IDE / Chat UI) 
+
+Chat interface 
+
+KQL view/editor 
+
+Results and summary view 
+
+Orchestration Service 
+
+Receives NL requests 
+
+Calls LLM/NL→KQL engine 
+
+Interfaces with schema service & cluster metadata 
+
+Manages conversation state 
+
+NL→KQL Engine 
+
+LLM-based component 
+
+Enhanced with schema + KB via RAG 
+
+Error handling and suggestion logic 
+
+Kusto Connector 
+
+Authenticates as the user or delegated identity 
+
+Runs queries on specified clusters 
+
+Returns results and errors 
+
+Schema & Metadata Service 
+
+Ingests and caches cluster schema (tables, columns, types) 
+
+Exposes schema to NL→KQL engine 
+
+AI Insight Engine 
+
+Ingests aggregated signals from clusters & incidents 
+
+Runs pattern mining and similarity models 
+
+Provides cross-cluster insights and suggestions 
+
+Knowledge Store 
+
+Stores saved queries, tags, incidents, and usage metrics 
+
+Feeds into recommendations. 
+
+Telemetry & Logging 
+
+Logs interactions, query outcomes, and usage metrics 
+
+Enables monitoring and evaluation. 
+
+ 
+
+11. Telemetry, Metrics & Evaluation 
+
+Number of active users (by team) 
+
+Number of NL prompts vs. KQL queries generated 
+
+Query success/failure rate (pre- and post-AI) 
+
+Time from prompt to first successful query 
+
+Use of AI-suggested queries vs. manual edits 
+
+Click-through / usage of recommended queries 
+
+Insight Engine suggestions → user follow-through rate 
+
+CSAT / feedback collected within the tool 
+
+ 
+
+12. Risks & Mitigations 
+
+Risk: Incorrect or misleading queries 
+
+Mitigation: Always show generated KQL; user must explicitly run it. Provide warnings & explanations. 
+
+Risk: Wrong cluster used for investigation 
+
+Mitigation: Clearly display cluster; make switching easy; use entity/usage-based heuristics to pick the best cluster. 
+
+Risk: Over-reliance on AI 
+
+Mitigation: Position as assistant, not authority. Encourage review of KQL. Provide training material. 
+
+Risk: Data privacy or access issues 
+
+Mitigation: Strictly enforce existing auth; never elevate access; log all access; follow internal compliance guidelines. 
+
+Risk: Performance & latency issues 
+
+Mitigation: Caching schema; optimizing LLM calls; fallbacks (e.g., “Here’s a starting query, please refine”). 
+
+ 
+
+13. Dependencies & Assumptions 
+
+Access to Kusto clusters and schema metadata. 
+
+Integration with identity and authorization systems. 
+
+Availability of an LLM platform (e.g., internal Copilot service). 
+
+Access to incident and query history in a privacy-aware manner for Insight Engine. 
+
+ 
+
+14. Open Questions 
+
+What is the initial cluster set for v1 (pilot scope)? 
+
+How much incident history can we safely leverage for training/Insight Engine (privacy constraints)? 
+
+Who will own governance and lifecycle of saved queries and patterns? 
+
+What’s the right MVP scope for the Insight Engine vs. simple recommendations? 
+
+ 
+
+15. Next Steps 
+
+Validate this PRD with:  
+
+CDO Containment 
+
+SecIR 
+
+Detection Engineering 
+
+Threat Intel 
+
+Prioritize MVP feature set for v1. 
+
+Define architecture in more detail and align with internal platforms. 
+
+Identify pilot users and clusters. 
+
+Build, test, and iterate based on user feedback. 
+
+ 
+
+Solution: 
+
+ 
+
+Architecture: 
+
+ 
+
+ 
+
+Github Repos: 
+
+abhirockzz/mcp_kusto: Vibe querying with MCP server for Azure Data Explorer (Kusto) 
+
+ 
+
+References: 
+
+johnib/kusto-mcp: MCP server for Azure Data Explorer (Kusto), enabling AI agents to explore, query,… 
