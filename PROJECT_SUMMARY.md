@@ -2,7 +2,7 @@
 
 ## 🎯 What We Built
 
-We built a **working Proof-of-Concept (MVP)** for an AI-powered system that converts **Natural Language queries into Kusto Query Language (KQL)**. This is designed for Microsoft CDO Security Operations teams who need to investigate security incidents, hunt threats, and analyze data across multiple Kusto clusters.
+We built a **working Proof-of-Concept (MVP)** for an AI-powered system that converts **Natural Language queries into Kusto Query Language (KQL)**. 
 
 ---
 
@@ -319,17 +319,6 @@ SecurityEvent
 6. **Actionable Insights**: Suggest next steps based on query results
 7. **Query Optimization**: Suggest performance improvements
 8. **User Feedback Loop**: Learn from user corrections
-
----
-
-## 📚 References & Inspiration
-
-1. **Research Paper**: "NL2KQL: From Natural Language to Kusto Query" (Microsoft Research)
-2. **kusto-mcp Repository**: TypeScript MCP server for Kusto (used for patterns)
-3. **mcp_kusto Repository**: Go MCP server for Kusto (reference implementation)
-4. **Project Requirements**: `project.txt` - Original PRD for the platform
-
----
 
 ## 🎓 What Makes This Special
 
